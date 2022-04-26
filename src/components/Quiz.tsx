@@ -5,6 +5,7 @@ import { BsXCircle as Wrong, BsCheckCircle as Right } from "react-icons/bs"
 import { useState, createRef, useEffect, useRef } from "react"
 import { quiz, question } from '../../types'
 
+
 const Quiz: React.FC<quiz> = ({show, setScore}) => {
   const [icko, setIcko] = useState(0)
   const [done, setDone] = useState(false)
@@ -16,29 +17,32 @@ const Quiz: React.FC<quiz> = ({show, setScore}) => {
   ques.current = [...Array(4)].map((_, i) => ques.current[i] ?? createRef())
   
   const api = new PokemonClient()
-  const allPokemonNames = Pokemons.all().slice(0, -7).map(name => name.toLowerCase().replace(/\s/g, '-'))
+  const allPokemonNames = Pokemons.all().slice(0, -7)
   let interval: number
 
   useEffect(() => {
+
     createQuestion()
   }, [])
 
   useEffect(() => {
-    interval = setInterval(() => setTime(t => t-1), 1000)
-    
-    if (time == 0) {
-      if (!done) {
-        ques.current.forEach(q => {
-          if (q.current?.innerText !== questionData.answer) {
-            q.current?.classList.add('opacity-30')
-          }
-        })
-      } 
-      clearInterval(interval)
-      setDone(true)
-    }
+    if (questionData) {
+      interval = setInterval(() => setTime(t => t-1), 1000)
+      
+      if (time == 0) {
+        if (!done) {
+          ques.current.forEach(q => {
+            if (q.current?.innerText !== questionData.answer) {
+              q.current?.classList.add('opacity-30')
+            }
+          })
+        } 
+        clearInterval(interval)
+        setDone(true)
+      }
 
-    return () => clearInterval(interval)
+      return () => clearInterval(interval)
+    }
   }, [time, icko])
 
   useEffect(() => {
@@ -49,12 +53,12 @@ const Quiz: React.FC<quiz> = ({show, setScore}) => {
   const createQuestion = async () => {
     const questions = [...Array(4)].map(() => allPokemonNames[Math.floor(Math.random() * 898) + 1])
     const answer = questions[Math.floor(Math.random() * 4)]
-    const img = api.getPokemonByName(answer)
-  
+    const pokemon = api.getPokemonById(Pokemons.getId(answer))
+
     setQuestionData({
       answer,
       questions,
-      img: (await img).sprites.other["official-artwork"].front_default
+      img: (await pokemon).sprites.other["official-artwork"].front_default,
     })
   }
 
@@ -91,7 +95,7 @@ const Quiz: React.FC<quiz> = ({show, setScore}) => {
 
     setTime(15)
     setDone(false)
-    setIcko(icko+1)
+    setIcko(icko + 1)
 
     slider.current.style.animation = 'none'
     slider.current.offsetHeight
@@ -101,24 +105,26 @@ const Quiz: React.FC<quiz> = ({show, setScore}) => {
   }
 
   return (
-    <div className="rounded shadow-xl flex flex-col w-[35rem] bg-white animate-appear">
+    <div className="rounded shadow-xl flex flex-col w-[35rem] bg-[#fff5bbcc] backdrop-blur animate-appear">
       <Top time={time} />
-      <div className="h-1 bg-zinc-300">
-        <div ref={slider} className="h-1 animate-slide bg-blue-500"></div>
+      <div className="h-1 bg-orange-300/50">
+        <div ref={slider} className="h-1 animate-slide bg-orange-500"></div>
       </div>
-      {questionData && <div className="p-8 pt-0 space-y-3">
-        <img src={questionData.img} alt="pokemon sprite" className="w-[475px] mx-auto" />
-        {questionData.questions.map((name, i) => { 
+      <div className="h-[475px]">
+        {questionData && <img src={questionData.img} alt="pokemon sprite" className="w-[475px] mx-auto" />}
+      </div>
+      <div className="grid grid-cols-2 gap-3 p-3">
+        {questionData && questionData.questions.map((name, i) => { 
           return (
             <div onClick={e => check(e)} key={i} ref={ques.current[i]} className="ans flex items-center justify-between">
               {name}
               {name === questionData.answer ? <Right size={20} className="text-green-400 hidden"/> : <Wrong size={20} className="text-red-400 hidden"/>}
             </div>
         )})}
-      </div>}
-      <div className="h-[.15rem] mt-auto bg-zinc-300"></div>
+      </div>
+      <div className="h-[.15rem] mt-auto bg-orange-300/50"></div>
       <div className="p-2 px-6 flex items-center justify-between">
-        <div className="flex gap-1 py-[.4rem]"> <p className="font-bold">{icko+1}</p> of <p className="font-bold">10</p> Questions</div>
+        <div className="flex gap-1 py-[.4rem]"> <p className="font-bold">{icko + 1}</p> of <p className="font-bold">10</p> Questions</div>
         {done && <button onClick={next} className="btn animate-appear">Next Pokemon</button>}
       </div>
     </div>

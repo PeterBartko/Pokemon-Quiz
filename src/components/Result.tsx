@@ -16,7 +16,7 @@ const Result: React.FC<result> = ({score, setIntro, setShowQuiz, setScore}) => {
   
   const quit = () => {
     setShowQuiz(true)
-    setIntro(false)
+    setIntro(true)
     setScore(0)
   }
 
@@ -27,7 +27,7 @@ const Result: React.FC<result> = ({score, setIntro, setShowQuiz, setScore}) => {
       <h3 className="font-bold text-md flex gap-1">You got <p style={colorize(score)}>{score}</p> out of 10</h3>
       <div className="space-x-4">
         <button onClick={replay} className="btn">Replay Quiz</button>
-        <button onClick={quit} className="btn bg-white text-blue-500 border-2 py-[.31rem] px-[14px] border-blue-500">Quit Quiz</button>
+        <button onClick={quit} className="btn bg-white text-amber-500 border-2 py-[.31rem] px-[14px] border-amber-500">Quit Quiz</button>
       </div>      
     </div>
   )
