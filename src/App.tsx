@@ -8,7 +8,7 @@ function App() {
   const [intro, setIntro] = useState(true)
 
   return (
-    <div className="bg-blue-600 h-screen p-5 grid place-items-center bg-[url('./assets/bg3.webp')]">
+    <div className="bg-blue-600 min-h-screen p-5 grid place-items-center bg-[url('./assets/bg3.webp')]">
       {showQuiz && intro && (
         <button
           onClick={() => setIntro(false)}

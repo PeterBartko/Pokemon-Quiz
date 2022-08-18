@@ -109,17 +109,17 @@ const Quiz: React.FC<quiz> = ({ show, setScore }) => {
   }
 
   return (
-    <div className="rounded shadow-xl flex flex-col w-full max-w-[35rem] bg-[#fff5bbcc] backdrop-blur animate-appear">
+    <div className="rounded shadow-xl flex flex-col w-full max-w-[28rem] bg-[#fff5bbcc] backdrop-blur animate-appear ">
       <Top time={time} />
       <div className="h-1 bg-orange-300/50">
         <div ref={slider} className="h-1 animate-slide bg-orange-500"></div>
       </div>
-      <div className="max-h-[475px]">
+      <div className="max-h-[375px]">
         {questionData && (
           <img
             src={questionData.img}
             alt="pokemon sprite"
-            className="w-full max-w-[475px] mx-auto"
+            className="w-full max-w-[375px] mx-auto"
           />
         )}
       </div>
