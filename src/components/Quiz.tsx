@@ -4,6 +4,7 @@ import Pokemons from 'pokemon'
 import { BsXCircle as Wrong, BsCheckCircle as Right } from 'react-icons/bs'
 import { useState, createRef, useEffect, useRef } from 'react'
 import { quiz, question } from '../../types'
+import { motion, useAnimation } from 'framer-motion'
 
 const chooseRandom = (arr: string[]) => {
   const res = []
@@ -21,14 +22,21 @@ const Quiz: React.FC<quiz> = ({ show, setScore }) => {
   const [done, setDone] = useState(false)
   const [time, setTime] = useState(15)
   const [questionData, setQuestionData] = useState<question>(null)
+  const control = useAnimation()
 
-  const slider = createRef<HTMLDivElement>()
+  const img = useRef()
+
   const ques = useRef([])
   ques.current = [...Array(4)].map((_, i) => ques.current[i] ?? createRef())
 
   const api = new PokemonClient()
   const allPokemonNames = Pokemons.all().slice(0, -7)
   let interval: number
+
+  useEffect(() => {
+    control.set({ pathLength: 1 })
+    control.start({ pathLength: 0, transition: { duration: 15, ease: 'linear' } })
+  }, [])
 
   useEffect(() => {
     if (!questionData) createQuestion()
@@ -48,10 +56,6 @@ const Quiz: React.FC<quiz> = ({ show, setScore }) => {
 
     return () => clearInterval(interval)
   }, [time, icko])
-
-  useEffect(() => {
-    if (done) slider.current!.style.animationPlayState = 'paused'
-  }, [done])
 
   const createQuestion = async () => {
     const questions = chooseRandom(allPokemonNames)
@@ -83,7 +87,10 @@ const Quiz: React.FC<quiz> = ({ show, setScore }) => {
       }
     })
     clearInterval(interval)
-    setDone(true)
+    setDone(d => {
+      if (!d) control.stop()
+      return !d
+    })
   }
 
   const next = () => {
@@ -101,25 +108,33 @@ const Quiz: React.FC<quiz> = ({ show, setScore }) => {
     setDone(false)
     setIcko(icko + 1)
 
-    slider.current.style.animation = 'none'
-    slider.current.offsetHeight
-    slider.current.style.animation = null
+    control.set({ pathLength: 1 })
+    control.start({ pathLength: 0, transition: { duration: 15, ease: 'linear' } })
 
     createQuestion()
   }
 
   return (
-    <div className="rounded shadow-xl flex flex-col w-full max-w-[28rem] bg-[#fff5bbcc] backdrop-blur animate-appear ">
+    <div className="rounded shadow-xl flex flex-col w-full max-w-[30rem] bg-[#fff5bbcc] backdrop-blur animate-appear ">
       <Top time={time} />
-      <div className="h-1 bg-orange-300/50">
-        <div ref={slider} className="h-1 animate-slide bg-orange-500"></div>
-      </div>
-      <div className="max-h-[375px]">
+      <svg height="4" width="100%" className="bg-orange-300/50">
+        <motion.line
+          animate={control}
+          x1="0"
+          y1="2"
+          x2="100%"
+          y2="2"
+          stroke="#f97316"
+          strokeWidth="4"
+        />
+      </svg>
+
+      <div className="max-h-[260px] h-full">
         {questionData && (
           <img
             src={questionData.img}
             alt="pokemon sprite"
-            className="w-full max-w-[375px] mx-auto"
+            className="w-full h-full max-w-[260px] mx-auto"
           />
         )}
       </div>
